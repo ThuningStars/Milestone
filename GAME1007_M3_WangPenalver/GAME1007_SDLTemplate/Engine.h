@@ -30,7 +30,7 @@ public:
 	SDL_Rect* GetRect() { return &m_dst; }
 	void Update()
 	{
-		m_dst.y -= 2; // Move the bullet "up" 2 pixels every frame.
+		m_dst.x -= 2; // Move the bullet "up" 2 pixels every frame.
 	}
 };
 class Engine
