@@ -32,7 +32,7 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 	m_player = { {0,m_srcy+ m_srcHeight,m_srcWidth,m_srcHeight}, {0,384,m_dstWidth/5,m_dstHeight/5} }; // First {} is src rectangle, and second {} destination rect
 	m_bg1 = { {0,0,1365,768},{0,0,1365,768} };
 	m_bg2 = { {0,0,1365,768},{1365,0,1365,768} };
-	m_bullet.SetLoc({ 512,384 });
+	// m_fireball = {0,0,  }
 
 	cout << "Initialization successful!" << endl;
 	m_running = true;
@@ -54,6 +54,16 @@ void Engine::HandleEvents()
 		case SDL_QUIT:
 			m_running = false;
 			break;
+		
+		case SDL_KEYUP:
+			if (event.key.keysym.sym == ' ')// spacebar pressed/held
+			{
+			//spawn bullet
+				
+			 m_bullet.push_back( new Bullet({ m_player.m_dst.x+40, m_player.m_dst.y+40 }) );
+			 m_bullet.shrink_to_fit();
+			 cout << " New bullet vector capacity " << m_bullet.capacity() << endl;
+			}
 		}
 	}
 }
@@ -100,7 +110,24 @@ void Engine::Update()
 		m_player.m_dst.x -= m_speed;
 	else if (KeyDown(SDL_SCANCODE_D) && m_player.m_dst.x < WIDTH/2 - m_player.m_dst.w)
 		m_player.m_dst.x += m_speed;
-	m_bullet.Update();
+
+	for(unsigned i = 0 ; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
+		m_bullet[i]->Update();					//	 combines dereference and member accsess
+	// check bullets going off screen
+
+	for (unsigned i = 0; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
+	{
+		if (m_bullet[i]->GetRekt()->x > WIDTH)
+		{
+			delete m_bullet[i]; // flag for reallocation
+			m_bullet[i] = nullptr; // get rid of the dangling pointer
+			m_bullet.erase(m_bullet.begin() + i);
+			m_bullet.shrink_to_fit();
+			cout << " Bullet Deleted \n";
+			break;
+		}
+	}
+	EnemyOne->Update();
 }
 
 void Engine::Render()
@@ -111,10 +138,14 @@ void Engine::Render()
 	SDL_RenderCopy(m_pRenderer, m_pBGTexture, &m_bg2.m_src, &m_bg2.m_dst);
 	SDL_RenderCopy(m_pRenderer, m_pBGTexture, &m_bg1.m_src, &m_bg1.m_dst);
 	// Bullet
-	SDL_SetRenderDrawColor(m_pRenderer, 255, 69, 0, 0);
-	SDL_RenderFillRect(m_pRenderer, m_bullet.GetRect());
+	for (unsigned i = 0; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
+		m_bullet[i]->Render(m_pRenderer);
+
+	//Enemy
+	//EnemyOne.Render(m_pRenderer);
 	// Sprite
 	SDL_RenderCopy(m_pRenderer, m_pTexture, &m_player.m_src, &m_player.m_dst);
+	
 	//SDL_RenderCopyEx(m_pRenderer, m_pTexture, &m_player.m_src, &m_player.m_dst, 90.0, NULL, SDL_FLIP_NONE);
 	SDL_RenderPresent(m_pRenderer); // Flip buffers - send data to window.
 }
@@ -157,6 +188,14 @@ int Engine::Run()
 void Engine::Clean()
 {
 	cout << "Cleaning engine..." << endl;
+	for (unsigned i = 0; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
+	{
+		delete m_bullet[i]; // flag for reallocation
+		m_bullet[i] = nullptr; // get rid of the dangling pointer
+	}
+	m_bullet.clear();
+	m_bullet.shrink_to_fit(); // reduces the capacity to size
+
 	SDL_DestroyRenderer(m_pRenderer);
 	SDL_DestroyWindow(m_pWindow);
 	SDL_DestroyTexture(m_pTexture);

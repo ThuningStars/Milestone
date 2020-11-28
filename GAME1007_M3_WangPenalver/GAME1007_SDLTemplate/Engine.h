@@ -3,6 +3,7 @@
 #define _ENGINE_H_
 
 #include <iostream>
+#include <vector>
 #include "SDL.h"
 #include "SDL_image.h"
 #define FPS 60
@@ -17,21 +18,70 @@ public:
 	SDL_Rect m_dst; // Destination rectangle.
 };
 
-class Bullet
+class Bullet : public Sprite
 {
 private:
-	SDL_Rect m_dst = { 0,0,16,16 };
+	SDL_Rect m_rect;
 public:
+	Bullet(SDL_Point spawnLoc = { 1024, 384 })
+	{
+		cout << "CONSTRUCTING Bullet \n";
+		this->m_rect.x = spawnLoc.x;
+		this->m_rect.y = spawnLoc.y;
+		this->m_rect.w = 5;
+		this->m_rect.h = 5;
+
+	}
+	~Bullet() // Destructor
+	{
+		cout << "De-Allocating Bullet at " << &(*this) << endl;
+	}
 	void SetLoc(SDL_Point newloc)
 	{
-		m_dst.x = newloc.x;
-		m_dst.y = newloc.y;
+		m_rect.x = newloc.x;
+		m_rect.y = newloc.y;
 	}
-	SDL_Rect* GetRect() { return &m_dst; }
 	void Update()
 	{
-		m_dst.x -= 2; // Move the bullet "up" 2 pixels every frame.
+		this->m_rect.x += 6;
 	}
+	void Render(SDL_Renderer* rend)
+	{
+		SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
+		SDL_RenderFillRect(rend, &m_rect);
+
+	}
+	SDL_Rect* GetRekt() { return &m_rect; }
+};
+class Enemy 
+{	
+private:
+	SDL_Rect m_enerect;
+public: 
+	Enemy(SDL_Point spawnLoc = { 1024, 384})
+	{
+		cout << "CONSTRUCTING ENEMY \n";
+		this->m_enerect.x = spawnLoc.x;
+		this->m_enerect.y = spawnLoc.y;
+		this->m_enerect.w = 100;
+		this->m_enerect.h = 100;
+
+
+	}
+	void SetLoc(SDL_Point loc)
+	{
+
+	}
+	void Update()
+	{
+		this->m_enerect.x -= 10;
+	}
+	void Render(SDL_Renderer* rend)
+	{
+		SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
+		SDL_RenderFillRect(rend, &m_enerect);
+	}
+
 };
 class Engine
 {
@@ -45,12 +95,13 @@ private: // private properties.
 	SDL_Texture* m_pTexture;
 	SDL_Texture* m_pBGTexture;
 	SDL_Texture* m_pFireballTexture;
-	Sprite m_player, m_bg1, m_bg2;
+	Sprite m_player, m_bg1, m_bg2, m_enemy, m_fireball;
 	int m_speed = 5; // In-class initialization. Not normal.
 	int m_dstWidth = 432, m_dstHeight = 512;
 	int m_srcWidth = m_dstWidth / 3, m_srcHeight = m_dstHeight / 4, m_srcy = 0;
 	int m_time = 0;
-	Bullet m_bullet;
+	vector<Bullet*> m_bullet;
+	Enemy* EnemyOne;
 
 private: // private method prototypes.
 	int Init(const char* title, int xPos, int yPos, int width, int height, int flags);
