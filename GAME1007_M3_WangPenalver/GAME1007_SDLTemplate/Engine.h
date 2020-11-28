@@ -35,6 +35,7 @@ public:
 	~Bullet() // Destructor
 	{
 		cout << "De-Allocating Bullet at " << &(*this) << endl;
+		cout << "SOmething\n";
 	}
 	void SetLoc(SDL_Point newloc)
 	{
