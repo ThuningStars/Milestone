@@ -34,9 +34,16 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 	m_keystates = SDL_GetKeyboardState(nullptr);
 	m_player = { {0,m_srcy+ m_srcHeight,m_srcWidth,m_srcHeight}, {0,384,m_dstWidth/5,m_dstHeight/5} }; // First {} is src rectangle, and second {} destination rect
 	m_fireball = { {0,0,146,72} };
+	m_fireball.m_dst.y = m_player.m_dst.y + 40;
+	m_fireball.m_dst.w = 14;
+	m_fireball.m_dst.h = 7;
 	m_waterball = { {0,0,219,231}};
+
 	srand(time(NULL));
-	m_enemy = { {0,m_srcHeight*3,m_srcWidth,m_srcHeight}, {1024,(rand() % 640),m_dstWidth / 5,m_dstHeight / 5} };
+	m_enemy = { {0,m_srcHeight * 3,m_srcWidth,m_srcHeight} };
+	m_enemy.m_dst.x = 1024;
+	m_enemy.m_dst.w = 86;
+	m_enemy.m_dst.h = 102;
 	m_bg1 = { {0,0,1365,768},{0,0,1365,768} };
 	m_bg2 = { {0,0,1365,768},{1365,0,1365,768} };
 	
@@ -66,7 +73,9 @@ void Engine::HandleEvents()
 			if (event.key.keysym.sym == ' ')// spacebar pressed/held
 			{
 			//spawn bullet
-				
+			m_playerbullet.push_back(new Sprite({ m_player.m_dst.x + 40, m_player.m_dst.y + 40 }));
+			m_playerbullet.shrink_to_fit();
+
 			 m_bullet.push_back( new Bullet({ m_player.m_dst.x+40, m_player.m_dst.y+40 }) );
 			 m_bullet.shrink_to_fit();
 			 cout << " New bullet vector capacity " << m_bullet.capacity() << endl;
@@ -117,13 +126,41 @@ void Engine::Update()
 	}
 
 	// enemy movement
-	m_enemy.m_dst.x -= m_speed * 1.5;
 
-	if (m_enemy.m_dst.x <= -100)
+
+	m_timer += m_delta;
+	if (m_timer % 1000 == 0)
 	{
-		m_enemy.m_dst.x = 1365;
-		m_enemy.m_dst.y = rand() % 640;
-		cout << "respanwing\n";
+		m_enemy.m_dst.y = (rand() % 640);
+		m_enemyNumber.push_back(new Enemy({ 1024,m_enemy.m_dst.y }));
+		m_enemyNumber.shrink_to_fit();
+		cout << " New Enemy vector capacity " << m_enemyNumber.capacity() << endl;
+	}
+	for (unsigned i = 0; i < m_enemyNumber.size(); i++) // size() is actual filled numbers of elements
+	{
+		m_enemyNumber[i]->UpdateEnemy();
+		m_enemy.m_dst.x -= 3;
+		// bullet
+		if (m_timer % 50 == 0)
+		{
+			m_enemyBullet.push_back(new EnemyBullet({ m_enemy.m_dst.x,m_enemy.m_dst.y +51 }));
+			m_enemyBullet.shrink_to_fit();
+			cout << " New Enemy Bullet vector capacity " << m_enemyBullet.capacity() << endl;
+		}
+	}
+
+	for (unsigned i = 0; i < m_enemyNumber.size(); i++) // size() is actual filled numbers of elements
+	{
+		if (m_enemyNumber[i]->GetRekt()->x < -100)
+		{
+			m_enemy.m_dst.x = 1024;
+			delete m_enemyNumber[i]; // flag for reallocation
+			m_enemyNumber[i] = nullptr; // get rid of the dangling pointer
+			m_enemyNumber.erase(m_enemyNumber.begin() + i);
+			m_enemyNumber.shrink_to_fit();
+			cout << " Enemy Deleted \n";
+			break;
+		}
 	}
 
 	// Parse player movement.
@@ -137,36 +174,45 @@ void Engine::Update()
 		m_player.m_dst.x += m_speed;
 
 	// player Bullet
-	for(unsigned i = 0 ; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
-		m_bullet[i]->Update();					//	 combines dereference and member accsess
+	for (unsigned i = 0; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
+	{
+		//m_fireball.m_dst.x = m_player.m_dst.x + 40;
+		m_playerbullet[i] ->Update();
+		m_bullet[i]->Update();
+		//m_fireball.m_dst.x += 6;
+	}//	 combines dereference and member accsess
 	// check bullets going off screen
 
 
 	for (unsigned i = 0; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
 	{
+		
 		if (m_bullet[i]->GetRekt()->x > WIDTH)
 		{
+			//m_fireball.m_dst.x = m_player.m_dst.x + 40;
 			delete m_bullet[i]; // flag for reallocation
 			m_bullet[i] = nullptr; // get rid of the dangling pointer
 			m_bullet.erase(m_bullet.begin() + i);
 			m_bullet.shrink_to_fit();
 			cout << " Bullet Deleted \n";
+
+			delete m_playerbullet[i]; // flag for reallocation
+			m_playerbullet[i] = nullptr; // get rid of the dangling pointer
+			m_playerbullet.erase(m_playerbullet.begin() + i);
+			m_playerbullet.shrink_to_fit();
+			cout << " Bullet Deleted \n";
+
 			break;
 		}
 	}
 
-	// enemy bullet loop
-	if (1024 / m_enemy.m_dst.x == 128)
-	{
-		m_enemyBullet.push_back(new Bullet({ m_enemy.m_dst.x + 40, m_enemy.m_dst.y + 40 }));
-		m_enemyBullet.shrink_to_fit();
-		cout << " New Enemy bullet vector capacity " << m_enemyBullet.capacity() << endl;
-	}
+	// enemy bullet
+
 	for (unsigned i = 0; i < m_enemyBullet.size(); i++) // size() is actual filled numbers of elements
 		m_enemyBullet[i]->UpdateEnemyB();
 	for (unsigned i = 0; i < m_enemyBullet.size(); i++) // size() is actual filled numbers of elements
 	{
-		if (m_enemyBullet[i]->GetRekt()->x > WIDTH)
+		if (m_enemyBullet[i]->GetRekt()->x < -10)
 		{
 			delete m_enemyBullet[i]; // flag for reallocation
 			m_enemyBullet[i] = nullptr; // get rid of the dangling pointer
@@ -177,11 +223,25 @@ void Engine::Update()
 		}
 	}
 
-	/*EnemyOne.Update();
-	if (SDL_HasIntersection(EnemyOne.GetRekt(), &m_player.m_dst))
+	// collision
+	for (unsigned i = 0; i < 1; i++)
 	{
-		cout << " collision \n";
-	}*/
+		//m_enemy.m_dst = m_bullet[i]->GetRekt();
+
+		
+		if (SDL_HasIntersection(&m_player.m_dst,&m_enemy.m_dst))
+		{
+			cout << "Player and enemy Collision!" << endl;
+		}
+		else if (SDL_HasIntersection(&m_playerbullet.GetDst, &m_enemy.m_dst))
+		{
+			cout << "Player Bullet Collision!" << endl;
+			delete m_enemyNumber[i]; // flag for reallocation
+			m_enemyNumber[i] = nullptr; // get rid of the dangling pointer
+			m_enemyNumber.erase(m_enemyNumber.begin() + i);
+			m_enemyNumber.shrink_to_fit();
+		}
+	}
 }
 
 void Engine::Render()
@@ -204,7 +264,8 @@ void Engine::Render()
 
 
 	// Enemy
-	SDL_RenderCopy(m_pRenderer, m_pEnemyTexture, &m_enemy.m_src, &m_enemy.m_dst);
+	for (unsigned i = 0; i < m_enemyNumber.size(); i++) // size() is actual filled numbers of elements
+		m_enemyNumber[i]->Render(m_pRenderer, m_pEnemyTexture, &m_enemy.m_src);
 	
 	//SDL_RenderCopyEx(m_pRenderer, m_pTexture, &m_player.m_src, &m_player.m_dst, 90.0, NULL, SDL_FLIP_NONE);
 	SDL_RenderPresent(m_pRenderer); // Flip buffers - send data to window.
