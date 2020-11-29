@@ -1,0 +1,5 @@
+﻿  Engine.cpp
+C:\Users\migue\Desktop\GitHub\Milestone\GAME1007_M3_WangPenalver\GAME1007_SDLTemplate\Engine.cpp(38,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Main.cpp
+  Generating Code...
+  GAME1007_SDLTemplate.vcxproj -> C:\Users\migue\Desktop\GitHub\Milestone\GAME1007_M3_WangPenalver\Debug\GAME1007_SDLTemplate.exe
