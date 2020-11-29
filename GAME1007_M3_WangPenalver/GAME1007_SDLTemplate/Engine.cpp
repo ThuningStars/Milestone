@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include <ctime>
 
 int Engine::Init(const char* title, int xPos, int yPos, int width, int height, int flags)
 {
@@ -18,7 +19,8 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 				{
 					m_pTexture = IMG_LoadTexture(m_pRenderer, "img/dragon1.png");
 					m_pBGTexture = IMG_LoadTexture(m_pRenderer, "img/background4.png");
-					m_pFireballTexture = IMG_LoadTexture(m_pRenderer, "img/fireball.png");
+					//m_pFireballTexture = IMG_LoadTexture(m_pRenderer, "img/fireball.png");
+					m_EneTexture = IMG_LoadTexture(m_pRenderer, "img/dragon2.png");
 				}
 				else return false; // Image init failed.
 			}
@@ -30,9 +32,12 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 	m_fps = (Uint32)round(1.0 / (double)FPS * 1000); // Converts FPS into milliseconds, e.g. 16.67
 	m_keystates = SDL_GetKeyboardState(nullptr);
 	m_player = { {0,m_srcy+ m_srcHeight,m_srcWidth,m_srcHeight}, {0,384,m_dstWidth/5,m_dstHeight/5} }; // First {} is src rectangle, and second {} destination rect
+	srand(time(NULL));
+	
+	m_enemy = { {0,0,154,221}, {875,rand() % 640, 154,221} };
 	m_bg1 = { {0,0,1365,768},{0,0,1365,768} };
 	m_bg2 = { {0,0,1365,768},{1365,0,1365,768} };
-	// m_fireball = {0,0,  }
+	
 
 	cout << "Initialization successful!" << endl;
 	m_running = true;
@@ -63,7 +68,9 @@ void Engine::HandleEvents()
 			 m_bullet.push_back( new Bullet({ m_player.m_dst.x+40, m_player.m_dst.y+40 }) );
 			 m_bullet.shrink_to_fit();
 			 cout << " New bullet vector capacity " << m_bullet.capacity() << endl;
+
 			}
+			
 		}
 	}
 }
@@ -100,6 +107,14 @@ void Engine::Update()
 		if (m_player.m_src.x >= m_dstWidth)
 			m_player.m_src.x = 0;
 	}
+	
+	m_enemy.m_dst.x -= m_speed * 2;
+	if (m_enemy.m_dst.x <= -100)
+	{
+		m_enemy.m_dst.x = 1100;
+		m_enemy.m_dst.y = rand() % 700;
+		cout << "respanwing\n";
+	}
 
 	// Parse player movement.
 	if (KeyDown(SDL_SCANCODE_W) && m_player.m_dst.y > 0)
@@ -115,6 +130,7 @@ void Engine::Update()
 		m_bullet[i]->Update();					//	 combines dereference and member accsess
 	// check bullets going off screen
 
+
 	for (unsigned i = 0; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
 	{
 		if (m_bullet[i]->GetRekt()->x > WIDTH)
@@ -127,7 +143,11 @@ void Engine::Update()
 			break;
 		}
 	}
-	EnemyOne->Update();
+	/*EnemyOne.Update();
+	if (SDL_HasIntersection(EnemyOne.GetRekt(), &m_player.m_dst))
+	{
+		cout << " collision \n";
+	}*/
 }
 
 void Engine::Render()
@@ -137,14 +157,17 @@ void Engine::Render()
 	// Background
 	SDL_RenderCopy(m_pRenderer, m_pBGTexture, &m_bg2.m_src, &m_bg2.m_dst);
 	SDL_RenderCopy(m_pRenderer, m_pBGTexture, &m_bg1.m_src, &m_bg1.m_dst);
+
 	// Bullet
 	for (unsigned i = 0; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
 		m_bullet[i]->Render(m_pRenderer);
 
-	//Enemy
-	//EnemyOne.Render(m_pRenderer);
 	// Sprite
 	SDL_RenderCopy(m_pRenderer, m_pTexture, &m_player.m_src, &m_player.m_dst);
+
+
+	// Enemy
+	SDL_RenderCopy(m_pRenderer, m_EneTexture, &m_enemy.m_src, &m_enemy.m_dst);
 	
 	//SDL_RenderCopyEx(m_pRenderer, m_pTexture, &m_player.m_src, &m_player.m_dst, 90.0, NULL, SDL_FLIP_NONE);
 	SDL_RenderPresent(m_pRenderer); // Flip buffers - send data to window.
@@ -196,11 +219,14 @@ void Engine::Clean()
 	m_bullet.clear();
 	m_bullet.shrink_to_fit(); // reduces the capacity to size
 
+
 	SDL_DestroyRenderer(m_pRenderer);
 	SDL_DestroyWindow(m_pWindow);
 	SDL_DestroyTexture(m_pTexture);
 	SDL_DestroyTexture(m_pBGTexture);
-	SDL_DestroyTexture(m_pFireballTexture);
+	//SDL_DestroyTexture(m_pFireballTexture);
+	SDL_DestroyTexture(m_EneTexture);
+
 	IMG_Quit();
 	SDL_Quit();
 }

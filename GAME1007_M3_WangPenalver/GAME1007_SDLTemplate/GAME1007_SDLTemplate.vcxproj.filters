@@ -43,5 +43,8 @@
     <Image Include="img\background4.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="img\dragon2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

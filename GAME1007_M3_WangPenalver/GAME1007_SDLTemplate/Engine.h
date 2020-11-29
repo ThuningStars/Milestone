@@ -18,7 +18,7 @@ public:
 	SDL_Rect m_dst; // Destination rectangle.
 };
 
-class Bullet : public Sprite
+class Bullet 
 {
 private:
 	SDL_Rect m_rect;
@@ -35,7 +35,7 @@ public:
 	~Bullet() // Destructor
 	{
 		cout << "De-Allocating Bullet at " << &(*this) << endl;
-		cout << "SOmething\n";
+		
 	}
 	void SetLoc(SDL_Point newloc)
 	{
@@ -54,36 +54,27 @@ public:
 	}
 	SDL_Rect* GetRekt() { return &m_rect; }
 };
-class Enemy 
-{	
-private:
-	SDL_Rect m_enerect;
-public: 
-	Enemy(SDL_Point spawnLoc = { 1024, 384})
-	{
-		cout << "CONSTRUCTING ENEMY \n";
-		this->m_enerect.x = spawnLoc.x;
-		this->m_enerect.y = spawnLoc.y;
-		this->m_enerect.w = 100;
-		this->m_enerect.h = 100;
-
-
-	}
-	void SetLoc(SDL_Point loc)
-	{
-
-	}
-	void Update()
-	{
-		this->m_enerect.x -= 10;
-	}
-	void Render(SDL_Renderer* rend)
-	{
-		SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
-		SDL_RenderFillRect(rend, &m_enerect);
-	}
-
-};
+//class Enemy : public Sprite
+//{	
+//private:
+//	//SDL_Rect m_dest = { 0,0,30,30};
+//
+//public: 
+//	
+//	void SetLoc(SDL_Point newloc)
+//	{
+//		m_dst.x = newloc.x;
+//		m_dst.y = newloc.y;
+//	}
+//	void Update()
+//	{
+//		m_dst.x -= 10;
+//		
+//	}
+//	
+//	SDL_Rect* GetRekt() { return &m_dst; }
+//
+//};
 class Engine
 {
 private: // private properties.
@@ -92,17 +83,18 @@ private: // private properties.
 	const Uint8* m_keystates;
 	SDL_Window* m_pWindow;
 	SDL_Renderer* m_pRenderer;
-
+	SDL_Texture* m_EneTexture;
 	SDL_Texture* m_pTexture;
 	SDL_Texture* m_pBGTexture;
-	SDL_Texture* m_pFireballTexture;
-	Sprite m_player, m_bg1, m_bg2, m_enemy, m_fireball;
+	//SDL_Texture* m_pFireballTexture;
+	Sprite m_player, m_bg1, m_bg2, m_enemy;
 	int m_speed = 5; // In-class initialization. Not normal.
 	int m_dstWidth = 432, m_dstHeight = 512;
 	int m_srcWidth = m_dstWidth / 3, m_srcHeight = m_dstHeight / 4, m_srcy = 0;
+
 	int m_time = 0;
 	vector<Bullet*> m_bullet;
-	Enemy* EnemyOne;
+	//Enemy EnemyOne;
 
 private: // private method prototypes.
 	int Init(const char* title, int xPos, int yPos, int width, int height, int flags);

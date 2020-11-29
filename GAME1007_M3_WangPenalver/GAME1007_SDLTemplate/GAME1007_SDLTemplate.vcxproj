@@ -150,6 +150,7 @@
   <ItemGroup>
     <Image Include="img\background4.png" />
     <Image Include="img\dragon1.png" />
+    <Image Include="img\dragon2.png" />
     <Image Include="img\fireball.png" />
     <Image Include="ship.png" />
   </ItemGroup>
