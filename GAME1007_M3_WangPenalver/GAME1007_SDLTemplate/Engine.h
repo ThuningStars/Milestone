@@ -21,15 +21,19 @@ public:
 class Bullet 
 {
 private:
-	SDL_Rect m_rect;
+	
+	SDL_Rect m_pFireDst;	
+	
+	
 public:
+
 	Bullet(SDL_Point spawnLoc = { 1024, 384 })
 	{
 		cout << "CONSTRUCTING Bullet \n";
-		this->m_rect.x = spawnLoc.x;
-		this->m_rect.y = spawnLoc.y;
-		this->m_rect.w = 5;
-		this->m_rect.h = 5;
+		this->m_pFireDst.x = spawnLoc.x;
+		this->m_pFireDst.y = spawnLoc.y;
+		this->m_pFireDst.w = 14;
+		this->m_pFireDst.h = 7;
 
 	}
 	~Bullet() // Destructor
@@ -39,20 +43,18 @@ public:
 	}
 	void SetLoc(SDL_Point newloc)
 	{
-		m_rect.x = newloc.x;
-		m_rect.y = newloc.y;
+		m_pFireDst.x = newloc.x;
+		m_pFireDst.y = newloc.y;
 	}
 	void Update()
 	{
-		this->m_rect.x += 6;
+		this->m_pFireDst.x += 6;
 	}
-	void Render(SDL_Renderer* rend)
+	void Render(SDL_Renderer* rend, SDL_Texture* text, const SDL_Rect* src)
 	{
-		SDL_SetRenderDrawColor(rend, 255, 0, 0, 255);
-		SDL_RenderFillRect(rend, &m_rect);
-
+		SDL_RenderCopy(rend, text, src, &m_pFireDst);
 	}
-	SDL_Rect* GetRekt() { return &m_rect; }
+	SDL_Rect* GetRekt() { return &m_pFireDst; }
 };
 //class Enemy : public Sprite
 //{	
@@ -83,18 +85,17 @@ private: // private properties.
 	const Uint8* m_keystates;
 	SDL_Window* m_pWindow;
 	SDL_Renderer* m_pRenderer;
-	SDL_Texture* m_EneTexture;
+	SDL_Texture* m_pEnemyTexture;
 	SDL_Texture* m_pTexture;
 	SDL_Texture* m_pBGTexture;
-	//SDL_Texture* m_pFireballTexture;
-	Sprite m_player, m_bg1, m_bg2, m_enemy;
+	SDL_Texture* m_pFireballTexture;
+	Sprite m_player, m_bg1, m_bg2, m_enemy, m_fireball;
 	int m_speed = 5; // In-class initialization. Not normal.
 	int m_dstWidth = 432, m_dstHeight = 512;
 	int m_srcWidth = m_dstWidth / 3, m_srcHeight = m_dstHeight / 4, m_srcy = 0;
-
 	int m_time = 0;
+
 	vector<Bullet*> m_bullet;
-	//Enemy EnemyOne;
 
 private: // private method prototypes.
 	int Init(const char* title, int xPos, int yPos, int width, int height, int flags);

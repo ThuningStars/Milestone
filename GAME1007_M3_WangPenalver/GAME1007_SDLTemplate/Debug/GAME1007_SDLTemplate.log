@@ -1,3 +1,6 @@
 ﻿  Engine.cpp
-C:\Users\migue\Desktop\GitHub\Milestone\GAME1007_M3_WangPenalver\GAME1007_M3_WangPenalver\GAME1007_SDLTemplate\Engine.cpp(35,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  GAME1007_SDLTemplate.vcxproj -> C:\Users\migue\Desktop\GitHub\Milestone\GAME1007_M3_WangPenalver\GAME1007_M3_WangPenalver\Debug\GAME1007_SDLTemplate.exe
+E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\Milestone\GAME1007_M3_WangPenalver\GAME1007_SDLTemplate\Engine.cpp(36,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
+E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\Milestone\GAME1007_M3_WangPenalver\GAME1007_SDLTemplate\Engine.cpp(118,34): warning C4244: “-=”: 从“double”转换到“int”，可能丢失数据
+  Main.cpp
+  正在生成代码...
+  GAME1007_SDLTemplate.vcxproj -> E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\Milestone\GAME1007_M3_WangPenalver\Debug\GAME1007_SDLTemplate.exe

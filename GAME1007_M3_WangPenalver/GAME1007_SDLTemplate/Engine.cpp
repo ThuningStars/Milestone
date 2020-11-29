@@ -19,8 +19,8 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 				{
 					m_pTexture = IMG_LoadTexture(m_pRenderer, "img/dragon1.png");
 					m_pBGTexture = IMG_LoadTexture(m_pRenderer, "img/background4.png");
-					//m_pFireballTexture = IMG_LoadTexture(m_pRenderer, "img/fireball.png");
-					m_EneTexture = IMG_LoadTexture(m_pRenderer, "img/dragon2.png");
+					m_pFireballTexture = IMG_LoadTexture(m_pRenderer, "img/fireball.png");
+					m_pEnemyTexture = IMG_LoadTexture(m_pRenderer, "img/enemy.png");
 				}
 				else return false; // Image init failed.
 			}
@@ -32,9 +32,9 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 	m_fps = (Uint32)round(1.0 / (double)FPS * 1000); // Converts FPS into milliseconds, e.g. 16.67
 	m_keystates = SDL_GetKeyboardState(nullptr);
 	m_player = { {0,m_srcy+ m_srcHeight,m_srcWidth,m_srcHeight}, {0,384,m_dstWidth/5,m_dstHeight/5} }; // First {} is src rectangle, and second {} destination rect
+	m_fireball = { {0,0,146,72} };
 	srand(time(NULL));
-	
-	m_enemy = { {0,0,154,221}, {875,rand() % 640, 154,221} };
+	m_enemy = { {0,m_srcHeight*3,m_srcWidth,m_srcHeight}, {1024,(rand() % 640),m_dstWidth / 5,m_dstHeight / 5} };
 	m_bg1 = { {0,0,1365,768},{0,0,1365,768} };
 	m_bg2 = { {0,0,1365,768},{1365,0,1365,768} };
 	
@@ -97,7 +97,8 @@ void Engine::Update()
 		m_bg1.m_dst.x = 0;
 		m_bg2.m_dst.x = 1365;
 	}
-
+	
+	// animation
 	m_time++;
 
 	if (FPS / m_time == 4)
@@ -106,13 +107,19 @@ void Engine::Update()
 		m_player.m_src.x += m_srcWidth;
 		if (m_player.m_src.x >= m_dstWidth)
 			m_player.m_src.x = 0;
+
+		m_time = 0;
+		m_enemy.m_src.x += m_srcWidth;
+		if (m_enemy.m_src.x >= m_dstWidth)
+			m_enemy.m_src.x = 0;
 	}
-	
-	m_enemy.m_dst.x -= m_speed * 2;
+
+	// enemy movement
+	m_enemy.m_dst.x -= m_speed * 1.5;
 	if (m_enemy.m_dst.x <= -100)
 	{
-		m_enemy.m_dst.x = 1100;
-		m_enemy.m_dst.y = rand() % 700;
+		m_enemy.m_dst.x = 1365;
+		m_enemy.m_dst.y = rand() % 640;
 		cout << "respanwing\n";
 	}
 
@@ -126,6 +133,7 @@ void Engine::Update()
 	else if (KeyDown(SDL_SCANCODE_D) && m_player.m_dst.x < WIDTH/2 - m_player.m_dst.w)
 		m_player.m_dst.x += m_speed;
 
+	// Bullet
 	for(unsigned i = 0 ; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
 		m_bullet[i]->Update();					//	 combines dereference and member accsess
 	// check bullets going off screen
@@ -160,14 +168,14 @@ void Engine::Render()
 
 	// Bullet
 	for (unsigned i = 0; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
-		m_bullet[i]->Render(m_pRenderer);
+		m_bullet[i]->Render(m_pRenderer, m_pFireballTexture,&m_fireball.m_src);
 
 	// Sprite
 	SDL_RenderCopy(m_pRenderer, m_pTexture, &m_player.m_src, &m_player.m_dst);
 
 
 	// Enemy
-	SDL_RenderCopy(m_pRenderer, m_EneTexture, &m_enemy.m_src, &m_enemy.m_dst);
+	SDL_RenderCopy(m_pRenderer, m_pEnemyTexture, &m_enemy.m_src, &m_enemy.m_dst);
 	
 	//SDL_RenderCopyEx(m_pRenderer, m_pTexture, &m_player.m_src, &m_player.m_dst, 90.0, NULL, SDL_FLIP_NONE);
 	SDL_RenderPresent(m_pRenderer); // Flip buffers - send data to window.
@@ -225,8 +233,8 @@ void Engine::Clean()
 	SDL_DestroyTexture(m_pTexture);
 	SDL_DestroyTexture(m_pBGTexture);
 	//SDL_DestroyTexture(m_pFireballTexture);
-	SDL_DestroyTexture(m_EneTexture);
-
+	SDL_DestroyTexture(m_pEnemyTexture);
+	SDL_DestroyTexture(m_pFireballTexture);
 	IMG_Quit();
 	SDL_Quit();
 }
