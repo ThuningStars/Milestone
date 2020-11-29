@@ -20,6 +20,7 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 					m_pTexture = IMG_LoadTexture(m_pRenderer, "img/dragon1.png");
 					m_pBGTexture = IMG_LoadTexture(m_pRenderer, "img/background4.png");
 					m_pFireballTexture = IMG_LoadTexture(m_pRenderer, "img/fireball.png");
+					m_pWaterballTexture = IMG_LoadTexture(m_pRenderer, "img/waterball.png");
 					m_pEnemyTexture = IMG_LoadTexture(m_pRenderer, "img/enemy.png");
 				}
 				else return false; // Image init failed.
@@ -33,6 +34,7 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 	m_keystates = SDL_GetKeyboardState(nullptr);
 	m_player = { {0,m_srcy+ m_srcHeight,m_srcWidth,m_srcHeight}, {0,384,m_dstWidth/5,m_dstHeight/5} }; // First {} is src rectangle, and second {} destination rect
 	m_fireball = { {0,0,146,72} };
+	m_waterball = { {0,0,219,231}};
 	srand(time(NULL));
 	m_enemy = { {0,m_srcHeight*3,m_srcWidth,m_srcHeight}, {1024,(rand() % 640),m_dstWidth / 5,m_dstHeight / 5} };
 	m_bg1 = { {0,0,1365,768},{0,0,1365,768} };
@@ -116,6 +118,7 @@ void Engine::Update()
 
 	// enemy movement
 	m_enemy.m_dst.x -= m_speed * 1.5;
+
 	if (m_enemy.m_dst.x <= -100)
 	{
 		m_enemy.m_dst.x = 1365;
@@ -133,7 +136,7 @@ void Engine::Update()
 	else if (KeyDown(SDL_SCANCODE_D) && m_player.m_dst.x < WIDTH/2 - m_player.m_dst.w)
 		m_player.m_dst.x += m_speed;
 
-	// Bullet
+	// player Bullet
 	for(unsigned i = 0 ; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
 		m_bullet[i]->Update();					//	 combines dereference and member accsess
 	// check bullets going off screen
@@ -151,6 +154,29 @@ void Engine::Update()
 			break;
 		}
 	}
+
+	// enemy bullet loop
+	if (1024 / m_enemy.m_dst.x == 128)
+	{
+		m_enemyBullet.push_back(new Bullet({ m_enemy.m_dst.x + 40, m_enemy.m_dst.y + 40 }));
+		m_enemyBullet.shrink_to_fit();
+		cout << " New Enemy bullet vector capacity " << m_enemyBullet.capacity() << endl;
+	}
+	for (unsigned i = 0; i < m_enemyBullet.size(); i++) // size() is actual filled numbers of elements
+		m_enemyBullet[i]->UpdateEnemyB();
+	for (unsigned i = 0; i < m_enemyBullet.size(); i++) // size() is actual filled numbers of elements
+	{
+		if (m_enemyBullet[i]->GetRekt()->x > WIDTH)
+		{
+			delete m_enemyBullet[i]; // flag for reallocation
+			m_enemyBullet[i] = nullptr; // get rid of the dangling pointer
+			m_enemyBullet.erase(m_enemyBullet.begin() + i);
+			m_enemyBullet.shrink_to_fit();
+			cout << " Enemy Bullet Deleted \n";
+			break;
+		}
+	}
+
 	/*EnemyOne.Update();
 	if (SDL_HasIntersection(EnemyOne.GetRekt(), &m_player.m_dst))
 	{
@@ -169,6 +195,9 @@ void Engine::Render()
 	// Bullet
 	for (unsigned i = 0; i < m_bullet.size(); i++) // size() is actual filled numbers of elements
 		m_bullet[i]->Render(m_pRenderer, m_pFireballTexture,&m_fireball.m_src);
+
+	for (unsigned i = 0; i < m_enemyBullet.size(); i++) // size() is actual filled numbers of elements
+		m_enemyBullet[i]->Render(m_pRenderer, m_pWaterballTexture, &m_waterball.m_src);
 
 	// Sprite
 	SDL_RenderCopy(m_pRenderer, m_pTexture, &m_player.m_src, &m_player.m_dst);
@@ -224,6 +253,11 @@ void Engine::Clean()
 		delete m_bullet[i]; // flag for reallocation
 		m_bullet[i] = nullptr; // get rid of the dangling pointer
 	}
+	for (unsigned i = 0; i < m_enemyBullet.size(); i++) // size() is actual filled numbers of elements
+	{
+		delete m_enemyBullet[i]; // flag for reallocation
+		m_enemyBullet[i] = nullptr; // get rid of the dangling pointer
+	}
 	m_bullet.clear();
 	m_bullet.shrink_to_fit(); // reduces the capacity to size
 
@@ -232,9 +266,9 @@ void Engine::Clean()
 	SDL_DestroyWindow(m_pWindow);
 	SDL_DestroyTexture(m_pTexture);
 	SDL_DestroyTexture(m_pBGTexture);
-	//SDL_DestroyTexture(m_pFireballTexture);
 	SDL_DestroyTexture(m_pEnemyTexture);
 	SDL_DestroyTexture(m_pFireballTexture);
+	SDL_DestroyTexture(m_pWaterballTexture);
 	IMG_Quit();
 	SDL_Quit();
 }

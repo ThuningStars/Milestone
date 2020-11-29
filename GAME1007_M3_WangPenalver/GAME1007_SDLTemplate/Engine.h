@@ -23,7 +23,7 @@ class Bullet
 private:
 	
 	SDL_Rect m_pFireDst;	
-	
+	SDL_Rect m_pWaterDst;
 	
 public:
 
@@ -41,6 +41,11 @@ public:
 		cout << "De-Allocating Bullet at " << &(*this) << endl;
 		
 	}
+	void SetWaterDst(SDL_Point newloc)
+	{
+		m_pWaterDst.w = 7;
+		m_pWaterDst.h = 7;
+	}
 	void SetLoc(SDL_Point newloc)
 	{
 		m_pFireDst.x = newloc.x;
@@ -49,6 +54,10 @@ public:
 	void Update()
 	{
 		this->m_pFireDst.x += 6;
+	}
+	void UpdateEnemyB()
+	{
+		this->m_pWaterDst.x -= 6;
 	}
 	void Render(SDL_Renderer* rend, SDL_Texture* text, const SDL_Rect* src)
 	{
@@ -89,13 +98,15 @@ private: // private properties.
 	SDL_Texture* m_pTexture;
 	SDL_Texture* m_pBGTexture;
 	SDL_Texture* m_pFireballTexture;
-	Sprite m_player, m_bg1, m_bg2, m_enemy, m_fireball;
+	SDL_Texture* m_pWaterballTexture;
+	Sprite m_player, m_bg1, m_bg2, m_enemy, m_fireball, m_waterball;
 	int m_speed = 5; // In-class initialization. Not normal.
 	int m_dstWidth = 432, m_dstHeight = 512;
 	int m_srcWidth = m_dstWidth / 3, m_srcHeight = m_dstHeight / 4, m_srcy = 0;
 	int m_time = 0;
 
 	vector<Bullet*> m_bullet;
+	vector<Bullet*> m_enemyBullet;
 
 private: // private method prototypes.
 	int Init(const char* title, int xPos, int yPos, int width, int height, int flags);
