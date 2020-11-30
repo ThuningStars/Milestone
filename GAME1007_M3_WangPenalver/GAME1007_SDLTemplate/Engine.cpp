@@ -139,7 +139,7 @@ void Engine::Update()
 		m_enemyNumber[i]->UpdateEnemy();
 		//m_enemy.m_dst.x -= 3;
 		// bullet
-		if (m_timer % 50 == 0)
+		if (FPS/m_time == 2)
 		{
 			m_enemyBullet.push_back(new EnemyBullet({ m_enemy.m_dst.x,m_enemy.m_dst.y +51 }));
 			m_enemyBullet.shrink_to_fit();
