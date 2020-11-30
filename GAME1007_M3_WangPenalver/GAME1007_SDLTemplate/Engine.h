@@ -88,7 +88,7 @@ public:
 	}
 	void UpdateEnemyB()
 	{
-		this->m_pWaterDst.x -= 7;
+		this->m_pWaterDst.x -= 6;
 	}
 	void Render(SDL_Renderer* rend, SDL_Texture* text, const SDL_Rect* src)
 	{
@@ -149,7 +149,8 @@ private: // private properties.
 	int m_dstWidth = 432, m_dstHeight = 512;
 	int m_srcWidth = m_dstWidth / 3, m_srcHeight = m_dstHeight / 4, m_srcy = 0;
 	int m_time = 0;
-	int m_timer = 0;
+	int m_timerE = 0;
+	int m_timerB = 0;
 
 	vector<Bullet*> m_bullet;
 	vector<EnemyBullet*> m_enemyBullet;

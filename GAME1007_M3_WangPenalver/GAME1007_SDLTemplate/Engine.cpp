@@ -126,24 +126,27 @@ void Engine::Update()
 	// enemy movement
 
 
-	m_timer += m_delta;
-	if (m_timer % 500 == 0)
+	m_timerE += m_delta;
+	m_timerB += m_delta;
+	if (m_timerE % 500 == 0)
 	{
 		//m_enemy.m_dst.y = (rand() % 640);
 		m_enemyNumber.push_back(new Enemy({ 1024,(rand() % 640) }));
 		m_enemyNumber.shrink_to_fit();
 		cout << " New Enemy vector capacity " << m_enemyNumber.capacity() << endl;
+		m_timerE = 0;
 	}
 	for (unsigned i = 0; i < m_enemyNumber.size(); i++) // size() is actual filled numbers of elements
 	{
 		m_enemyNumber[i]->UpdateEnemy();
 		//m_enemy.m_dst.x -= 3;
 		// bullet
-		if (FPS/m_time == 2)
+		if (m_timerB % 30 == 0)
 		{
-			m_enemyBullet.push_back(new EnemyBullet({ m_enemy.m_dst.x,m_enemy.m_dst.y +51 }));
+			m_enemyBullet.push_back(new EnemyBullet({ m_enemyNumber[i]->GetRekt()->x,m_enemyNumber[i]->GetRekt()->y + 51 }));
 			m_enemyBullet.shrink_to_fit();
 			cout << " New Enemy Bullet vector capacity " << m_enemyBullet.capacity() << endl;
+			m_timerB = 0;
 		}
 	}
 
@@ -151,7 +154,7 @@ void Engine::Update()
 	{
 		if (m_enemyNumber[i]->GetRekt()->x < -100)
 		{
-			// m_enemy.m_dst.x = 1024;
+			 //m_enemy.m_dst.x = 1024;
 			delete m_enemyNumber[i]; // flag for reallocation
 			m_enemyNumber[i] = nullptr; // get rid of the dangling pointer
 			m_enemyNumber.erase(m_enemyNumber.begin() + i);
@@ -218,19 +221,20 @@ void Engine::Update()
 	// collision
 	for (unsigned i = 0; i < m_bullet.size(); i++)
 	{
-		if (SDL_HasIntersection(m_bullet[i]->GetRekt(), m_enemyNumber[i]->GetRekt()))
+		for (unsigned a = 0; a < m_enemyNumber.size(); a++)
+		if (SDL_HasIntersection(m_bullet[i]->GetRekt(), m_enemyNumber[a]->GetRekt()))
 		{
 			cout << "Collision!" << endl;
-
+	
 			delete m_bullet[i]; // flag for reallocation
 			m_bullet[i] = nullptr; // get rid of the dangling pointer
 			m_bullet.erase(m_bullet.begin() + i);
 			m_bullet.shrink_to_fit();
 			cout << " Bullet Deleted \n";
-
-			delete m_enemyNumber[i]; // flag for reallocation
-			m_enemyNumber[i] = nullptr; // get rid of the dangling pointer
-			m_enemyNumber.erase(m_enemyNumber.begin() + i);
+			
+			delete m_enemyNumber[a]; // flag for reallocation
+			m_enemyNumber[a] = nullptr; // get rid of the dangling pointer
+			m_enemyNumber.erase(m_enemyNumber.begin() + a);
 			m_enemyNumber.shrink_to_fit();
 			cout << " Enemy Deleted \n";
 		}
