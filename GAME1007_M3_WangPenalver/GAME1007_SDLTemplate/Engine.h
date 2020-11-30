@@ -23,10 +23,6 @@ public:
 	}
 	SDL_Rect* GetSrc() { return &m_src; }
 	SDL_Rect* GetDst() { return &m_dst; }
-	void Update()
-	{
-		this->m_dst.x += 6;
-	}
 };
 
 class Bullet 
@@ -158,7 +154,6 @@ private: // private properties.
 	vector<Bullet*> m_bullet;
 	vector<EnemyBullet*> m_enemyBullet;
 	vector<Enemy*> m_enemyNumber;
-	vector<Sprite*> m_playerbullet;
 
 private: // private method prototypes.
 	int Init(const char* title, int xPos, int yPos, int width, int height, int flags);
