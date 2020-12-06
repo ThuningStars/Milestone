@@ -88,7 +88,7 @@ public:
 	}
 	void UpdateEnemyB()
 	{
-		this->m_pWaterDst.x -= 6;
+		this->m_pWaterDst.x -= 5;
 	}
 	void Render(SDL_Renderer* rend, SDL_Texture* text, const SDL_Rect* src)
 	{

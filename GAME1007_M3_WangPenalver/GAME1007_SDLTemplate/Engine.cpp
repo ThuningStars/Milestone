@@ -70,7 +70,7 @@ void Engine::HandleEvents()
 			break;
 		
 		case SDL_KEYUP:
-			if (event.key.keysym.sym == 'E')// spacebar pressed/held
+			if (event.key.keysym.sym == ' ')// spacebar pressed/held
 			{
 			//spawn bullet
 
@@ -124,32 +124,31 @@ void Engine::Update()
 	}
 
 	// enemy movement
-
-
-	m_timerE += m_delta;
-	m_timerB += m_delta;
-	if (m_timerE % 300 == 0)
+	m_timerE++;
+	m_timerB++;
+	if (m_timerE == 400)
 	{
 		//m_enemy.m_dst.y = (rand() % 640);
 		m_enemyNumber.push_back(new Enemy({ 1024,(rand() % 640) }));
 		m_enemyNumber.shrink_to_fit();
 		cout << " New Enemy vector capacity " << m_enemyNumber.capacity() << endl;
-		
+		m_timerE = 0;
 	}
 	for (unsigned i = 0; i < m_enemyNumber.size(); i++) // size() is actual filled numbers of elements
 	{
 		m_enemyNumber[i]->UpdateEnemy();
-		//m_enemy.m_dst.x -= 3;
+		
 		// bullet
-		if (m_timerB % 30 == 0)
+		if (m_timerB >= 20)
 		{
 			m_enemyBullet.push_back(new EnemyBullet({ m_enemyNumber[i]->GetRekt()->x,m_enemyNumber[i]->GetRekt()->y + 51 }));
 			m_enemyBullet.shrink_to_fit();
 			cout << " New Enemy Bullet vector capacity " << m_enemyBullet.capacity() << endl;
-			
+			m_timerB = 0;
 		}
 	}
 
+	// Enemy delete
 	for (unsigned i = 0; i < m_enemyNumber.size(); i++) // size() is actual filled numbers of elements
 	{
 		if (m_enemyNumber[i]->GetRekt()->x < -100)
