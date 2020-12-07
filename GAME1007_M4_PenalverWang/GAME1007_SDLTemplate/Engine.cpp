@@ -589,8 +589,34 @@ void Engine::Clean()
 		delete m_enemyNumber[i]; // flag for reallocation
 		m_enemyNumber[i] = nullptr; // get rid of the dangling pointer
 	}
+	for (unsigned i = 0; i < m_treeNumber.size(); i++) // size() is actual filled numbers of elements
+	{
+		delete m_treeNumber[i]; // flag for reallocation
+		m_treeNumber[i] = nullptr; // get rid of the dangling pointer
+	}
+	for (unsigned i = 0; i < m_bird1Number.size(); i++) // size() is actual filled numbers of elements
+	{
+		delete m_bird1Number[i]; // flag for reallocation
+		m_bird1Number[i] = nullptr; // get rid of the dangling pointer
+	}
+	for (unsigned i = 0; i < m_bird2Number.size(); i++) // size() is actual filled numbers of elements
+	{
+		delete m_bird2Number[i]; // flag for reallocation
+		m_bird2Number[i] = nullptr; // get rid of the dangling pointer
+	}
+
 	m_bullet.clear();
 	m_bullet.shrink_to_fit(); // reduces the capacity to size
+	m_enemyBullet.clear();
+	m_enemyBullet.shrink_to_fit(); // reduces the capacity to size
+	m_enemyNumber.clear();
+	m_enemyNumber.shrink_to_fit(); // reduces the capacity to size
+	m_treeNumber.clear();
+	m_treeNumber.shrink_to_fit(); // reduces the capacity to size
+	m_bird1Number.clear();
+	m_bird1Number.shrink_to_fit(); // reduces the capacity to size
+	m_bird2Number.clear();
+	m_bird2Number.shrink_to_fit(); // reduces the capacity to size
 
 
 	SDL_DestroyRenderer(m_pRenderer);
@@ -601,6 +627,9 @@ void Engine::Clean()
 	SDL_DestroyTexture(m_pFireballTexture);
 	SDL_DestroyTexture(m_pWaterballTexture);
 	SDL_DestroyTexture(m_explodeTexture);
+	SDL_DestroyTexture(m_pTreeTexture);
+	SDL_DestroyTexture(m_bird1Texture);
+	SDL_DestroyTexture(m_bird2Texture);
 	IMG_Quit();
 	SDL_Quit();
 }
