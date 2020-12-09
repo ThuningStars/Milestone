@@ -26,6 +26,26 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 					m_pTreeTexture = IMG_LoadTexture(m_pRenderer, "img/tree.png");
 					m_bird1Texture = IMG_LoadTexture(m_pRenderer, "img/bird1.png");
 					m_bird2Texture = IMG_LoadTexture(m_pRenderer, "img/bird2.png");
+					if (Mix_Init(MIX_INIT_MP3) != 0)
+					{
+						// Configure mixer.
+						Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 2048);
+						Mix_AllocateChannels(16);
+						// Load sounds.
+						shoot = Mix_LoadWAV("sound/Fireball.wav");
+						if (shoot == nullptr)
+							cout << Mix_GetError() << endl;
+						waterball = Mix_LoadWAV("sound/waterball.mp3");
+						if (waterball == nullptr)
+							cout << Mix_GetError() << endl;
+						explosion = Mix_LoadWAV("sound/exp.wav");
+						if (explosion == nullptr)
+							cout << Mix_GetError() << endl;
+
+						m_bgm = Mix_LoadMUS("sound/bgm.mp3");
+						if (m_bgm == nullptr)
+							cout << Mix_GetError() << endl;
+					}
 				}
 				else return false; // Image init failed.
 			}
@@ -44,12 +64,18 @@ int Engine::Init(const char* title, int xPos, int yPos, int width, int height, i
 	m_enemy = { {0,m_srcHeight * 3,m_srcWidth,m_srcHeight} };
 	m_bg1 = { {0,0,1365,768},{0,0,1365,768} };
 	m_bg2 = { {0,0,1365,768},{1365,0,1365,768} };
-	m_pExplode = m_eExplode = { {0,0,m_explodeSrcW,m_explodeSrcH} };
-	m_pExplode.m_dst.w = m_eExplode.m_dst.w = m_explodeSrcW / 1.5;
-	m_pExplode.m_dst.h = m_eExplode.m_dst.h = m_explodeSrcH / 1.5;
+	m_eExplode = { {0,0,m_explodeSrcW,m_explodeSrcH} };
+	m_pExplode = { {0,0,m_explodeSrcW,m_explodeSrcH} };
+	m_pExplode.m_dst.w = m_explodeSrcW / 1.5;
+	m_eExplode.m_dst.w = m_explodeSrcW / 1.5;
+	m_pExplode.m_dst.h = m_explodeSrcH / 1.5;
+	m_eExplode.m_dst.h = m_explodeSrcH / 1.5;
 	m_tree = { {0,0,104,122} };
 	m_bird1 = { {0,0,95 / 3,96} };
 	m_bird2 = { {0,0,96 / 3,32} };
+
+	Mix_PlayMusic(m_bgm, -1); // 0-n for # of loops, or -1 for infinite looping.
+	Mix_VolumeMusic(70); // 0-128.
 
 	cout << "Initialization successful!" << endl;
 	m_running = true;
@@ -80,9 +106,10 @@ void Engine::HandleEvents()
 			 m_bullet.push_back( new Bullet({ m_player.m_dst.x+40, m_player.m_dst.y+40 }) );
 			 m_bullet.shrink_to_fit();
 			 cout << " New bullet vector capacity " << m_bullet.capacity() << endl;
+			 Mix_PlayChannel(-1, shoot, 0);
 
 			}
-			
+		
 		}
 	}
 }
@@ -139,6 +166,7 @@ void Engine::Update()
 
 	if (m_pExploOn == true && m_timerPE >= 2)
 	{
+		// Mix_PlayChannel(-1, explosion, 1);
 		m_pExplode.m_src.x += m_explodeSrcW;
 
 		if (m_pExplode.m_src.x >= m_explodeSrcW*10)
@@ -154,6 +182,8 @@ void Engine::Update()
 		}
 		
 		m_timerPE = 0;
+		SDL_DestroyTexture(m_pTexture);
+
 	}
 
 	// Player Explosion Movement
@@ -164,6 +194,7 @@ void Engine::Update()
 	m_timerEE++;
 	if (m_eExploOn == true && m_timerEE >= 2)
 	{
+
 		m_eExplode.m_src.x += m_explodeSrcW;
 		
 
@@ -172,13 +203,15 @@ void Engine::Update()
 			m_eExplode.m_src.x = 0;
 			m_eExplode.m_src.y += m_explodeSrcH;
 		}
-		if (m_pExplode.m_src.y >= m_explodeSrcH * 3 && m_pExplode.m_src.x >= m_explodeSrcW * 5)
+		if (m_eExplode.m_src.y >= m_explodeSrcH * 3 && m_eExplode.m_src.x >= m_explodeSrcW * 5)
 		{
-			m_pExplode.m_src.x = m_pExplode.m_src.y = 0;
+			m_eExplode.m_src.x = m_eExplode.m_src.y = 0;
 			m_eExploOn = false;
 		}
 
+		
 		m_timerEE = 0;
+		
 	}
 
 	// Enemy Explosion Movement
@@ -197,15 +230,18 @@ void Engine::Update()
 	}
 	for (unsigned i = 0; i < m_enemyNumber.size(); i++) // size() is actual filled numbers of elements
 	{
-		m_enemyNumber[i]->UpdateEnemy();
+		m_enemyNumber[i]->UpdateEnemy(); 
 		
 		// bullet
-		if (m_timerB >= 30)
+		if (m_timerB >= 55)
 		{
+			
 			m_enemyBullet.push_back(new EnemyBullet({ m_enemyNumber[i]->GetRekt()->x,m_enemyNumber[i]->GetRekt()->y + 51 }));
 			m_enemyBullet.shrink_to_fit();
+			Mix_PlayChannel(-1, waterball, 0);
 			cout << " New Enemy Bullet vector capacity " << m_enemyBullet.capacity() << endl;
 			m_timerB = 0;
+			
 		}
 	}
 
@@ -386,6 +422,7 @@ void Engine::Update()
 			m_eExplode.m_dst.y = m_enemyNumber[a]->GetRekt()->y;
 
 			cout << "Player bullet Collision!" << endl;
+			Mix_PlayChannel(-1, explosion, 0);
 	
 			delete m_bullet[i]; // flag for reallocation
 			m_bullet[i] = nullptr; // get rid of the dangling pointer
@@ -410,6 +447,7 @@ void Engine::Update()
 		    m_pExplode.m_dst.y = m_player.m_dst.y;
 
 			cout << "Enemy bullet Collision!" << endl;
+			Mix_PlayChannel(-1, explosion, 0);
 
 			delete m_enemyBullet[i]; // flag for reallocation
 			m_enemyBullet[i] = nullptr; // get rid of the dangling pointer
@@ -430,8 +468,10 @@ void Engine::Update()
 		{
 			m_pExplode.m_dst.x = m_player.m_dst.x;
 			m_pExplode.m_dst.y = m_player.m_dst.y;
+			Mix_PlayChannel(-1, explosion, 0);
 
 			cout << "Enemy and Player Collision!" << endl;
+			
 
 			cout << "Game Over" << endl;
 			m_playerOn = false;
@@ -448,6 +488,7 @@ void Engine::Update()
 			m_pExplode.m_dst.y = m_player.m_dst.y;
 
 			cout << "Tree Collision!" << endl;
+			Mix_PlayChannel(-1, explosion, 0);
 
 			cout << "Game Over" << endl;
 			m_playerOn = false;
@@ -464,6 +505,7 @@ void Engine::Update()
 			m_pExplode.m_dst.y = m_player.m_dst.y;
 
 			cout << "Bird1 Collision!" << endl;
+			Mix_PlayChannel(-1, explosion, 0);
 
 			cout << "Game Over" << endl;
 			m_playerOn = false;
@@ -480,6 +522,7 @@ void Engine::Update()
 			m_pExplode.m_dst.y = m_player.m_dst.y;
 
 			cout << "Bird2 Collision!" << endl;
+			Mix_PlayChannel(-1, explosion, 0);
 
 			cout << "Game Over" << endl;
 			m_playerOn = false;
@@ -630,7 +673,12 @@ void Engine::Clean()
 	SDL_DestroyTexture(m_pTreeTexture);
 	SDL_DestroyTexture(m_bird1Texture);
 	SDL_DestroyTexture(m_bird2Texture);
+	Mix_FreeChunk(waterball);
+	Mix_FreeChunk(explosion);
+	Mix_FreeChunk(shoot);
+	Mix_FreeMusic(m_bgm);
 	IMG_Quit();
+	Mix_Quit();
 	SDL_Quit();
 }
 

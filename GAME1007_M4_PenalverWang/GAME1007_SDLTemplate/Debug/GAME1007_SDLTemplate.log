@@ -1,5 +1,7 @@
 ﻿  Engine.cpp
-E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\Milestone\GAME1007_M4_PenalverWang\GAME1007_SDLTemplate\Engine.cpp(43,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
-E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\Milestone\GAME1007_M4_PenalverWang\GAME1007_SDLTemplate\Engine.cpp(48,58): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\Milestone\GAME1007_M4_PenalverWang\GAME1007_SDLTemplate\Engine.cpp(49,58): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-  GAME1007_SDLTemplate.vcxproj -> E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\Milestone\GAME1007_M4_PenalverWang\Debug\GAME1007_SDLTemplate.exe
+E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\w14\MILESTONE\GAME1007_M4_PenalverWang\GAME1007_M4_PenalverWang\GAME1007_SDLTemplate\Engine.cpp(63,12): warning C4244: “参数”: 从“time_t”转换到“unsigned int”，可能丢失数据
+E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\w14\MILESTONE\GAME1007_M4_PenalverWang\GAME1007_M4_PenalverWang\GAME1007_SDLTemplate\Engine.cpp(69,37): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\w14\MILESTONE\GAME1007_M4_PenalverWang\GAME1007_M4_PenalverWang\GAME1007_SDLTemplate\Engine.cpp(70,37): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\w14\MILESTONE\GAME1007_M4_PenalverWang\GAME1007_M4_PenalverWang\GAME1007_SDLTemplate\Engine.cpp(71,37): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\w14\MILESTONE\GAME1007_M4_PenalverWang\GAME1007_M4_PenalverWang\GAME1007_SDLTemplate\Engine.cpp(72,37): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+  GAME1007_SDLTemplate.vcxproj -> E:\GAME Programing\Fall 2020\Game 1007 Game Fundational\w14\MILESTONE\GAME1007_M4_PenalverWang\GAME1007_M4_PenalverWang\Debug\GAME1007_SDLTemplate.exe

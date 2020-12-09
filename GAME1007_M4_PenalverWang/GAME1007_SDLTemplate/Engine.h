@@ -6,6 +6,7 @@
 #include <vector>
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_mixer.h"
 #define FPS 60
 #define WIDTH 1024
 #define HEIGHT 768
@@ -72,7 +73,7 @@ class EnemyBullet
 private:
 
 	SDL_Rect m_pWaterDst;
-
+	Mix_Chunk* waterball = nullptr;
 public:
 
 
@@ -282,6 +283,10 @@ private: // private properties.
 	SDL_Texture* m_pTreeTexture;
 	SDL_Texture* m_bird1Texture;
 	SDL_Texture* m_bird2Texture;
+	Mix_Music* m_bgm = nullptr;
+	Mix_Chunk* shoot = nullptr;
+	Mix_Chunk* waterball = nullptr;
+	Mix_Chunk* explosion = nullptr;
 	Sprite m_player, m_bg1, m_bg2, m_enemy, m_fireball, m_waterball, m_pExplode, m_eExplode, m_tree, m_bird1, m_bird2;
 	int m_speed = 5; // In-class initialization. Not normal.
 	int m_dstWidth = 432, m_dstHeight = 512;
